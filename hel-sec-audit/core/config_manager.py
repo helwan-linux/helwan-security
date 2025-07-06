@@ -1,19 +1,18 @@
 # core/config_manager.py
-# Manages application configuration settings.
+# Manages application configuration settings safely for installed environments.
 
 import json
 import os
+from pathlib import Path
 
 class ConfigManager:
-    def __init__(self, config_file="config.json"):
-        # تحديد مسار ملف الإعدادات
-        # يتم وضع ملف الإعدادات بجانب ملف main.py أو في مجلد فرعي للبيانات
-        # لغرض البساطة والتطوير الحالي، سنضعه في نفس مسار تشغيل التطبيق
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        self.config_path = os.path.join(script_dir, config_file)
-        # إذا كنت تفضل وضعه في مجلد البيانات بدلاً من core
-        # self.config_path = os.path.join(os.path.dirname(script_dir), config_file) 
-        
+    def __init__(self, config_filename="config.json"):
+        # مسار إعدادات المستخدم: ~/.config/hel-sec-audit/config.json
+        config_dir = Path.home() / ".config" / "hel-sec-audit"
+        config_dir.mkdir(parents=True, exist_ok=True)
+
+        self.config_path = config_dir / config_filename
+
         self.default_config = {
             "checks_enabled": {
                 "System Updates Status": True,
@@ -22,19 +21,17 @@ class ConfigManager:
                 "Firewall Status": True
             },
             "general_settings": {
-                "dark_mode": False # مثال لإعداد عام آخر
+                "dark_mode": False
             }
         }
+
         self.config = self._load_config()
 
     def _load_config(self):
-        # تحميل الإعدادات من الملف، أو استخدام الإعدادات الافتراضية إذا لم يكن موجوداً
-        if os.path.exists(self.config_path):
+        if self.config_path.exists():
             try:
                 with open(self.config_path, "r") as f:
                     loaded_config = json.load(f)
-                    # دمج الإعدادات المحملة مع الافتراضية لضمان وجود جميع المفاتيح
-                    # هذا يضمن أن الإعدادات الجديدة تضاف تلقائياً إذا قمنا بتوسيع default_config
                     merged_config = self.default_config.copy()
                     for key, value in loaded_config.items():
                         if isinstance(value, dict) and key in merged_config:
@@ -43,14 +40,11 @@ class ConfigManager:
                             merged_config[key] = value
                     return merged_config
             except json.JSONDecodeError:
-                # في حالة تلف ملف الإعدادات، يتم استخدام الإعدادات الافتراضية
                 print(f"Warning: Corrupted config file '{self.config_path}'. Using default settings.")
                 return self.default_config
-        # إذا لم يكن الملف موجوداً
         return self.default_config
 
     def save_config(self):
-        # حفظ الإعدادات الحالية في الملف
         try:
             with open(self.config_path, "w") as f:
                 json.dump(self.config, f, indent=4)
@@ -58,23 +52,19 @@ class ConfigManager:
             print(f"Error saving config file: {e}")
 
     def get_setting(self, category, key):
-        # الحصول على قيمة إعداد معين
         return self.config.get(category, {}).get(key)
 
     def set_setting(self, category, key, value):
-        # تعيين قيمة لإعداد معين
         if category not in self.config:
             self.config[category] = {}
         self.config[category][key] = value
-        self.save_config() # حفظ التغيير فوراً
+        self.save_config()
 
     def get_all_check_settings(self):
-        # الحصول على حالة تمكين/تعطيل جميع الفحوصات
         return self.config.get("checks_enabled", {})
     
     def set_check_enabled(self, check_name, enabled):
-        # تعيين حالة تمكين/تعطيل فحص معين
         if "checks_enabled" not in self.config:
             self.config["checks_enabled"] = {}
         self.config["checks_enabled"][check_name] = enabled
-        self.save_config() # حفظ التغيير فوراً
+        self.save_config()
