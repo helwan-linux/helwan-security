@@ -1,0 +1,7 @@
+# requirements.txt
+# List of Python packages required for this project.
+# To install them, run: pip install -r requirements.txt
+
+PyQt5
+# reportlab  # For PDF generation (consider alternatives like FPDF if ReportLab is too complex)
+# fpdf2      # Another good option for PDF generation
