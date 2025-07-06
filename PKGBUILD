@@ -1,52 +1,42 @@
-# PKGBUILD
-# Arch Linux package build file for Hel-Sec-Audit
+# Maintainer: Saeed Badrelden <you@example.com>
 
 pkgname=hel-sec-audit
-pkgver=0.1.0 # Initial package version, can be updated later
+pkgver=0.1.0
 pkgrel=1
 pkgdesc="Comprehensive Security Audit and Hardening Tool for Linux and Windows."
-arch=('any') # 'any' as it's a Python script and works on any architecture
-url="https://github.com/helwan-linux/helwan-security" # GitHub repository URL
-license=('MIT') # Assuming MIT license, please verify and adjust if different.
-
-# Python dependencies required by the application, mapped to Arch Linux package names
+arch=('any')
+url="https://github.com/helwan-linux/helwan-security"
+license=('MIT')
 depends=('python' 'python-pyqt5' 'python-psutil' 'python-netifaces')
-
-# Source is a tarball of the 'main' branch from the GitHub repository
-# The extracted folder name from this tarball will be 'helwan-security-main/'
-source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/heads/main.tar.gz")
-
-# MD5 checksums - These need to be updated after the source file is downloaded for the first time.
-# Use 'makepkg -g' to generate them after placing this PKGBUILD file in a directory.
-# 'SKIP' can be used during development but is not recommended for production.
+source=("${pkgname}-${pkgver}.tar.gz::https://codeload.github.com/helwan-linux/helwan-security/tar.gz/refs/heads/main")
 md5sums=('SKIP')
 
 build() {
-  # This section is for complex build steps (e.g., compilation).
-  # For pure Python projects, it can be left empty or indicated with a colon ":".
   :
 }
 
 package() {
-  # This section is responsible for installing files to their correct locations in the system.
+  # إنشاء مجلد البرنامج داخل /opt
+  install -d "${pkgdir}/opt/${pkgname}"
 
-  # Create the main application directory in /opt, a common place for third-party software
-  install -d "${pkgdir}/opt/hel-sec-audit"
+  # نسخ الملفات من مجلد hel-sec-audit الفرعي فقط
+  cp -r "${srcdir}/helwan-security-main/hel-sec-audit/"* "${pkgdir}/opt/${pkgname}/"
 
-  # Copy all files from the extracted source directory to the installation directory
-  # The extracted source from the tarball will be 'helwan-security-main'
-  cp -r "${srcdir}/helwan-security-main/"* "${pkgdir}/opt/hel-sec-audit/"
+  # جعل السكريبت الرئيسي قابل للتنفيذ
+  chmod +x "${pkgdir}/opt/${pkgname}/main.py"
 
-  # Create the desktop applications directory
-  install -d "${pkgdir}/usr/share/applications/"
+  # إنشاء رابط رمزي في /usr/bin لتشغيل البرنامج من التيرمنال
+  install -d "${pkgdir}/usr/bin"
+  ln -s "/opt/${pkgname}/main.py" "${pkgdir}/usr/bin/hel-sec-audit"
 
-  # Copy the .desktop file to make the application appear in the desktop environment's menu
-  # The .desktop file is located directly inside the 'helwan-security-main' extracted folder
-  install -m644 "${srcdir}/helwan-security-main/hel-sec-audit.desktop" "${pkgdir}/usr/share/applications/"
+  # إنشاء مجلد التطبيقات ونسخ ملف .desktop
+  install -d "${pkgdir}/usr/share/applications"
+  install -m644 "${srcdir}/helwan-security-main/hel-sec-audit/hel-sec-audit.desktop" "${pkgdir}/usr/share/applications/"
 
-  # Make the main Python script executable
-  chmod +x "${pkgdir}/opt/hel-sec-audit/main.py"
-  
-  # Optional: Ensure all Python scripts are executable (good practice for helper scripts)
-  # find "${pkgdir}/opt/hel-sec-audit/" -name "*.py" -exec chmod +x {} \;
+  # نسخ أيقونة إذا كانت موجودة
+  if [[ -f "${srcdir}/helwan-security-main/hel-sec-audit/icon.png" ]]; then
+    install -d "${pkgdir}/usr/share/pixmaps"
+    install -m644 "${srcdir}/helwan-security-main/hel-sec-audit/icon.png" "${pkgdir}/usr/share/pixmaps/hel-sec-audit.png"
+  fi
 }
+
