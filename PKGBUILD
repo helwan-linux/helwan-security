@@ -1,4 +1,4 @@
-# Maintainer: Saeed Badrelden <you@example.com>
+# Maintainer: Saeed Badrelden
 
 pkgname=hel-sec-audit
 pkgver=0.1.0
@@ -8,7 +8,9 @@ arch=('any')
 url="https://github.com/helwan-linux/helwan-security"
 license=('MIT')
 depends=('python' 'python-pyqt5' 'python-psutil' 'python-netifaces')
-source=("${pkgname}-${pkgver}.tar.gz::https://codeload.github.com/helwan-linux/helwan-security/tar.gz/refs/heads/main")
+source=(
+  "${pkgname}-${pkgver}.tar.gz::https://codeload.github.com/helwan-linux/helwan-security/tar.gz/refs/heads/main"
+)
 md5sums=('SKIP')
 
 build() {
@@ -18,25 +20,21 @@ build() {
 package() {
   # إنشاء مجلد البرنامج داخل /opt
   install -d "${pkgdir}/opt/${pkgname}"
-
-  # نسخ الملفات من مجلد hel-sec-audit الفرعي فقط
   cp -r "${srcdir}/helwan-security-main/hel-sec-audit/"* "${pkgdir}/opt/${pkgname}/"
-
-  # جعل السكريبت الرئيسي قابل للتنفيذ
   chmod +x "${pkgdir}/opt/${pkgname}/main.py"
 
-  # إنشاء رابط رمزي في /usr/bin لتشغيل البرنامج من التيرمنال
+  # رابط في /usr/bin
   install -d "${pkgdir}/usr/bin"
-  ln -s "/opt/${pkgname}/main.py" "${pkgdir}/usr/bin/hel-sec-audit"
+  ln -s "/opt/${pkgname}/main.py" "${pkgdir}/usr/bin/${pkgname}"
 
-  # إنشاء مجلد التطبيقات ونسخ ملف .desktop
+  # ملف .desktop
   install -d "${pkgdir}/usr/share/applications"
-  install -m644 "${srcdir}/helwan-security-main/hel-sec-audit/hel-sec-audit.desktop" "${pkgdir}/usr/share/applications/"
+  install -m644 "${srcdir}/helwan-security-main/hel-sec-audit/hel-sec-audit.desktop" \
+    "${pkgdir}/usr/share/applications/${pkgname}.desktop"
 
-  # نسخ أيقونة إذا كانت موجودة
-  if [[ -f "${srcdir}/helwan-security-main/hel-sec-audit/icon.png" ]]; then
-    install -d "${pkgdir}/usr/share/pixmaps"
-    install -m644 "${srcdir}/helwan-security-main/hel-sec-audit/icon.png" "${pkgdir}/usr/share/pixmaps/hel-sec-audit.png"
-  fi
+  # نسخ الأيقونة من المسار الحقيقي
+  install -d "${pkgdir}/usr/share/pixmaps"
+  install -m644 "${srcdir}/helwan-security-main/hel-sec-audit/gui/assets/app_icon.png" \
+    "${pkgdir}/usr/share/pixmaps/${pkgname}.png"
 }
 
