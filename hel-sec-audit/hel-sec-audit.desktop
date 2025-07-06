@@ -2,7 +2,7 @@
 Name=Hel-Sec-Audit
 Comment=Comprehensive Security Audit and Hardening Tool for Linux and Windows
 Exec=python3 /opt/hel-sec-audit/main.py
-Icon=security-high
+Icon=hel-sec-audit
 Terminal=false
 Type=Application
 Categories=Security;System;Utility;
