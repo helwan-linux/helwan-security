@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import (
     QMainWindow, QVBoxLayout, QPushButton, QLabel, QWidget, 
-    QHBoxLayout, QToolButton, QAction
+    QHBoxLayout, QAction
 )
-from PyQt5.QtGui import QIcon, QPalette, QColor
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSize
 
 # Import all necessary windows
@@ -35,44 +35,10 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 800, 600)
         self.setWindowIcon(QIcon("gui/assets/app_icon.png"))
 
-        # تعيين الألوان والتصميم العام
-        self.setStyleSheet("""
-            QMainWindow {
-                background-color: qlineargradient(
-                    spread:pad, x1:0, y1:0, x2:1, y2:1,
-                    stop:0 #B0B0B0, stop:1 #A0A0A0
-                );
-            }
-
-            QLabel {
-                color: #222;
-                font-family: 'Segoe UI', 'Arial';
-                font-size: 24px;
-                font-weight: bold;
-            }
-
-            QPushButton {
-                background-color: #3a7bd5;
-                color: white;
-                border: none;
-                padding: 12px 24px;
-                border-radius: 12px;
-                font-size: 18px;
-                font-weight: bold;
-                font-family: 'Segoe UI';
-            }
-
-            QPushButton:hover {
-                background-color: #285ea8;
-            }
-
-            QPushButton:pressed {
-                background-color: #1e4a8a;
-            }
-        """)
-
+        self.current_theme = "default"
         self.init_ui()
         self.create_menu_bar()
+        self.set_theme("default")  # الوضع المبدئي
 
     def init_ui(self):
         central_widget = QWidget()
@@ -80,13 +46,12 @@ class MainWindow(QMainWindow):
         main_layout = QVBoxLayout()
         central_widget.setLayout(main_layout)
 
-        app_title_label = QLabel("🔒 hel-sec-audit 🔍")
-        app_title_label.setAlignment(Qt.AlignCenter)
-        main_layout.addWidget(app_title_label)
+        self.app_title_label = QLabel("🔒 hel-sec-audit 🔍")
+        self.app_title_label.setAlignment(Qt.AlignCenter)
+        main_layout.addWidget(self.app_title_label)
 
         main_layout.addStretch()
 
-        # زر Start Scan في منتصف الشاشة
         self.start_scan_button = QPushButton("🚀 Start Scan")
         self.start_scan_button.setFixedSize(250, 50)
         self.start_scan_button.clicked.connect(self.start_scan)
@@ -124,6 +89,127 @@ class MainWindow(QMainWindow):
         about_action.setStatusTip("Learn more about hel-sec-audit")
         about_action.triggered.connect(self.open_about)
         help_menu.addAction(about_action)
+
+        # قائمة Themes
+        theme_menu = menubar.addMenu("Themes")
+
+        dark_theme_action = QAction("🌙 Dark Mode", self)
+        dark_theme_action.triggered.connect(lambda: self.set_theme("dark"))
+        theme_menu.addAction(dark_theme_action)
+
+        pink_theme_action = QAction("🌸 Pink Mode", self)
+        pink_theme_action.triggered.connect(lambda: self.set_theme("pink"))
+        theme_menu.addAction(pink_theme_action)
+
+        default_theme_action = QAction("🌤 Default Mode", self)
+        default_theme_action.triggered.connect(lambda: self.set_theme("default"))
+        theme_menu.addAction(default_theme_action)
+
+    def set_theme(self, theme):
+        self.current_theme = theme
+
+        if theme == "dark":
+            self.setStyleSheet("""
+                QMainWindow {
+                    background-color: #2e2e2e;
+                }
+                QMenuBar {
+                    background-color: #1c1c1c;
+                    color: white;
+                }
+                QMenuBar::item:selected {
+                    background-color: #444;
+                }
+                QLabel {
+                    color: #ddd;
+                    font-family: 'Segoe UI';
+                    font-size: 24px;
+                    font-weight: bold;
+                }
+                QPushButton {
+                    background-color: #444;
+                    color: white;
+                    border-radius: 10px;
+                    padding: 10px 20px;
+                }
+                QPushButton:hover {
+                    background-color: #666;
+                }
+                QPushButton:pressed {
+                    background-color: #888;
+                }
+            """)
+
+        elif theme == "pink":
+            self.setStyleSheet("""
+                QMainWindow {
+                    background-color: #ffe6f0;
+                }
+                QMenuBar {
+                    background-color: #ffb6c1;
+                    color: #4b0033;
+                }
+                QMenuBar::item:selected {
+                    background-color: #ff99bb;
+                }
+                QLabel {
+                    color: #99004d;
+                    font-family: 'Segoe UI';
+                    font-size: 24px;
+                    font-weight: bold;
+                }
+                QPushButton {
+                    background-color: #ff5c8a;
+                    color: white;
+                    border-radius: 10px;
+                    padding: 10px 20px;
+                }
+                QPushButton:hover {
+                    background-color: #e6005c;
+                }
+                QPushButton:pressed {
+                    background-color: #cc0052;
+                }
+            """)
+
+        else:  # Default
+            self.setStyleSheet("""
+                QMainWindow {
+                    background-color: qlineargradient(
+                        spread:pad, x1:0, y1:0, x2:1, y2:1,
+                        stop:0 #B0B0B0, stop:1 #A0A0A0
+                    );
+                }
+                QMenuBar {
+                    background-color: #ddd;
+                    color: #222;
+                }
+                QMenuBar::item:selected {
+                    background-color: #bbb;
+                }
+                QLabel {
+                    color: #222;
+                    font-family: 'Segoe UI';
+                    font-size: 24px;
+                    font-weight: bold;
+                }
+                QPushButton {
+                    background-color: #3a7bd5;
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 12px;
+                    font-size: 18px;
+                    font-weight: bold;
+                    font-family: 'Segoe UI';
+                }
+                QPushButton:hover {
+                    background-color: #285ea8;
+                }
+                QPushButton:pressed {
+                    background-color: #1e4a8a;
+                }
+            """)
 
     def start_scan(self):
         self.scan_win = ScanWindow()
