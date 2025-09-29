@@ -1,8 +1,8 @@
 # Maintainer: Saeed Badrelden
 
 pkgname=hel-sec-audit
-pkgver=0.1.0
-pkgrel=1
+pkgver=0.1.2
+pkgrel=2
 pkgdesc="Comprehensive Security Audit and Hardening Tool for Linux and Windows."
 arch=('any')
 url="https://github.com/helwan-linux/helwan-security"
